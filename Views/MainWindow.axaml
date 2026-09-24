@@ -1,22 +1,87 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:ZarodeurLauncher.ViewModels"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="ZarodeurLauncher.Views.MainWindow"
         x:DataType="vm:MainViewModel"
-        Icon="/Assets/avalonia-logo.ico"
-        Title="ZarodeurLauncher">
+        Width="900"
+        Height="550"
+        MinWidth="700"
+        MinHeight="450"
+        Title="Zarodeur Launcher">
 
-    <Design.DataContext>
-        <!-- This only sets the DataContext for the previewer in an IDE,
-             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
-        <vm:MainViewModel />
-    </Design.DataContext>
+    <Window.Styles>
 
-    <TextBox Text="{Binding Greeting}"
-             HorizontalAlignment="Center"
-             VerticalAlignment="Center" />
+        <Style Selector="TextBlock.title">
+            <Setter Property="FontSize" Value="32"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+
+        <Style Selector="TextBlock.subtitle">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="Opacity" Value="0.75"/>
+        </Style>
+
+        <Style Selector="Button.play-button">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="35,15"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        </Style>
+
+    </Window.Styles>
+
+    <Grid RowDefinitions="Auto,*,Auto"
+          Margin="40">
+
+        <!-- HEADER -->
+        <StackPanel Grid.Row="0"
+                    Spacing="5">
+
+            <TextBlock Text="ZARODEUR"
+                       Classes="title"/>
+
+            <TextBlock Text="Minecraft Launcher"
+                       Classes="subtitle"/>
+
+        </StackPanel>
+
+
+        <!-- CONTENU PRINCIPAL -->
+        <StackPanel Grid.Row="1"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Spacing="15">
+
+            <TextBlock Text="Minecraft 1.20.1"
+                       FontSize="26"
+                       HorizontalAlignment="Center"/>
+
+            <TextBlock Text="Forge 47.4.0"
+                       FontSize="18"
+                       Opacity="0.7"
+                       HorizontalAlignment="Center"/>
+
+            <Button Content="JOUER"
+                    Classes="play-button"
+                    Margin="0,25,0,0"/>
+
+        </StackPanel>
+
+
+        <!-- FOOTER -->
+        <Grid Grid.Row="2"
+              ColumnDefinitions="*,Auto">
+
+            <TextBlock Grid.Column="0"
+                       Text="{Binding Status}"
+                       VerticalAlignment="Center"/>
+
+            <TextBlock Grid.Column="1"
+                       Text="Zarodeur Launcher"
+                       Opacity="0.5"/>
+
+        </Grid>
+
+    </Grid>
 
 </Window>

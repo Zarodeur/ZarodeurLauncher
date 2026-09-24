@@ -7,6 +7,8 @@ public class MinecraftPathService
 {
     public string MinecraftPath { get; }
 
+    public string ModsPath { get; }
+
     public MinecraftPathService()
     {
         var appData = Environment.GetFolderPath(
@@ -17,6 +19,11 @@ public class MinecraftPathService
             "ZarodeurLauncher",
             "Minecraft");
 
+        ModsPath = Path.Combine(
+            MinecraftPath,
+            "mods");
+
         Directory.CreateDirectory(MinecraftPath);
+        Directory.CreateDirectory(ModsPath);
     }
 }

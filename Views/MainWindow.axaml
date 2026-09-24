@@ -61,9 +61,10 @@
                        Opacity="0.7"
                        HorizontalAlignment="Center"/>
 
-            <Button Content="JOUER"
-                    Classes="play-button"
-                    Margin="0,25,0,0"/>
+	<Button Content="JOUER"
+        	Classes="play-button"
+        	Margin="0,25,0,0"
+        	Command="{Binding PrepareMinecraftCommand}"/>
 
         </StackPanel>
 

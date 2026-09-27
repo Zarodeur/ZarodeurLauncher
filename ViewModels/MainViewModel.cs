@@ -15,6 +15,9 @@ public partial class MainViewModel : ViewModelBase
     [ObservableProperty]
     private string _status = "Prêt";
 
+    [ObservableProperty]
+    private bool _isBusy;
+
     public MainViewModel()
     {
         _minecraftPathService = new MinecraftPathService();
@@ -29,6 +32,11 @@ public partial class MainViewModel : ViewModelBase
     [RelayCommand]
     private async Task PrepareMinecraft()
     {
+        if (IsBusy)
+            return;
+
+        IsBusy = true;
+
         try
         {
             Status = "Récupération du modpack...";
@@ -41,30 +49,24 @@ public partial class MainViewModel : ViewModelBase
                 $"Version : {manifest.Version} | " +
                 $"Mods : {manifest.Mods.Count}";
 
-            foreach (var mod in manifest.Mods)
-            {
-                Status = $"Vérification de {mod.File}...";
+            Status = "Synchronisation des mods...";
 
-                var downloaded =
-                    await _modpackService.DownloadModAsync(mod);
-
-                if (downloaded)
-                {
-                    Status =
-                        $"{mod.File} téléchargé et vérifié.";
-                }
-                else
-                {
-                    Status =
-                        $"{mod.File} déjà à jour.";
-                }
-            }
+            await _modpackService.SynchronizeModsAsync(
+                manifest);
 
             Status = "Modpack prêt !";
+
+            Status = "Lancement de Minecraft...";
+
+            await _minecraftService.LaunchAsync();
         }
         catch (Exception ex)
         {
             Status = $"Erreur : {ex.Message}";
+        }
+        finally
+        {
+            IsBusy = false;
         }
     }
 }

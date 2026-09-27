@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -44,14 +46,47 @@ public class ModpackService
                 "Impossible de lire le manifest.");
     }
 
-    public async Task<bool> DownloadModAsync(ModInfo mod)
+    public async Task SynchronizeModsAsync(
+        ModpackManifest manifest)
+    {
+        // Liste des fichiers qui doivent être présents
+        var expectedFiles =
+            new HashSet<string>(
+                manifest.Mods.Select(mod => mod.File),
+                StringComparer.OrdinalIgnoreCase);
+
+        // Suppression des anciens mods
+        var localMods =
+            Directory.GetFiles(
+                _pathService.ModsPath,
+                "*.jar");
+
+        foreach (var localMod in localMods)
+        {
+            var fileName =
+                Path.GetFileName(localMod);
+
+            if (!expectedFiles.Contains(fileName))
+            {
+                File.Delete(localMod);
+            }
+        }
+
+        // Téléchargement / vérification des mods
+        foreach (var mod in manifest.Mods)
+        {
+            await DownloadModAsync(mod);
+        }
+    }
+
+    private async Task<bool> DownloadModAsync(
+        ModInfo mod)
     {
         var destination =
             Path.Combine(
                 _pathService.ModsPath,
                 mod.File);
 
-        // Le fichier existe déjà : on vérifie son SHA-256
         if (File.Exists(destination))
         {
             var existingHash =
@@ -66,7 +101,6 @@ public class ModpackService
             }
         }
 
-        // Le fichier est absent ou différent : téléchargement
         var data =
             await _httpClient.GetByteArrayAsync(mod.Url);
 
@@ -74,7 +108,6 @@ public class ModpackService
             destination,
             data);
 
-        // Vérification après téléchargement
         var downloadedHash =
             await ComputeSha256Async(destination);
 
@@ -91,8 +124,9 @@ public class ModpackService
 
         return true;
     }
+
     private static async Task<string> ComputeSha256Async(
-    string filePath)
+        string filePath)
     {
         using var sha256 =
             System.Security.Cryptography.SHA256.Create();
@@ -105,4 +139,4 @@ public class ModpackService
 
         return Convert.ToHexString(hash);
     }
-} 
+}

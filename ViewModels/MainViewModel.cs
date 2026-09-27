@@ -18,6 +18,9 @@ public partial class MainViewModel : ViewModelBase
     [ObservableProperty]
     private bool _isBusy;
 
+    [ObservableProperty]
+    private double _progress;
+
     public MainViewModel()
     {
         _minecraftPathService = new MinecraftPathService();
@@ -51,10 +54,35 @@ public partial class MainViewModel : ViewModelBase
 
             Status = "Synchronisation des mods...";
 
-            await _modpackService.SynchronizeModsAsync(
-                manifest);
+            Progress = 0;
 
+            await _modpackService.SynchronizeModsAsync(
+                manifest,
+                (currentBytes, totalBytes) =>
+                {
+                    if (totalBytes > 0)
+                    {
+                        Progress =
+                            (double)currentBytes /
+                            totalBytes *
+                            100;
+
+                        Status =
+                            $"Téléchargement... " +
+                            $"{currentBytes / 1024 / 1024} / " +
+                            $"{totalBytes / 1024 / 1024} Mo";
+                    }
+                    else
+                    {
+                        Status =
+                            $"Téléchargement... " +
+                            $"{currentBytes / 1024 / 1024} Mo";
+                    }
+                });
+
+            Progress = 100;
             Status = "Modpack prêt !";
+
 
             Status = "Lancement de Minecraft...";
 

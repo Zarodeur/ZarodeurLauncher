@@ -47,15 +47,15 @@ public class ModpackService
     }
 
     public async Task SynchronizeModsAsync(
-        ModpackManifest manifest)
+        ModpackManifest manifest,
+        Action<long, long>? progressCallback = null)
     {
-        // Liste des fichiers qui doivent être présents
         var expectedFiles =
             new HashSet<string>(
                 manifest.Mods.Select(mod => mod.File),
                 StringComparer.OrdinalIgnoreCase);
 
-        // Suppression des anciens mods
+        // Suppression des mods qui ne sont plus dans le manifest
         var localMods =
             Directory.GetFiles(
                 _pathService.ModsPath,
@@ -75,18 +75,22 @@ public class ModpackService
         // Téléchargement / vérification des mods
         foreach (var mod in manifest.Mods)
         {
-            await DownloadModAsync(mod);
+            await DownloadModAsync(
+                mod,
+                progressCallback);
         }
     }
 
     private async Task<bool> DownloadModAsync(
-        ModInfo mod)
+        ModInfo mod,
+        Action<long, long>? progressCallback = null)
     {
         var destination =
             Path.Combine(
                 _pathService.ModsPath,
                 mod.File);
 
+        // Vérification du fichier existant
         if (File.Exists(destination))
         {
             var existingHash =
@@ -97,17 +101,52 @@ public class ModpackService
                 mod.Sha256,
                 StringComparison.OrdinalIgnoreCase))
             {
+                progressCallback?.Invoke(1, 1);
+
                 return false;
             }
         }
 
-        var data =
-            await _httpClient.GetByteArrayAsync(mod.Url);
+        // Téléchargement avec progression
+        using var response =
+            await _httpClient.GetAsync(
+                mod.Url,
+                HttpCompletionOption.ResponseHeadersRead);
 
-        await File.WriteAllBytesAsync(
-            destination,
-            data);
+        response.EnsureSuccessStatusCode();
 
+        var totalBytes =
+            response.Content.Headers.ContentLength ?? -1;
+
+        await using var input =
+            await response.Content.ReadAsStreamAsync();
+
+        await using var output =
+            File.Create(destination);
+
+        var buffer =
+            new byte[81920];
+
+        long totalRead = 0;
+
+        int bytesRead;
+
+        while ((bytesRead =
+            await input.ReadAsync(buffer)) > 0)
+        {
+            await output.WriteAsync(
+                buffer.AsMemory(
+                    0,
+                    bytesRead));
+
+            totalRead += bytesRead;
+
+            progressCallback?.Invoke(
+                totalRead,
+                totalBytes);
+        }
+
+        // Vérification SHA-256
         var downloadedHash =
             await ComputeSha256Async(destination);
 

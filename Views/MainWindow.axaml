@@ -11,29 +11,45 @@
 
     <Window.Styles>
 
+        <!-- TITRE -->
         <Style Selector="TextBlock.title">
             <Setter Property="FontSize" Value="32"/>
             <Setter Property="FontWeight" Value="Bold"/>
         </Style>
 
+        <!-- SOUS-TITRE -->
         <Style Selector="TextBlock.subtitle">
             <Setter Property="FontSize" Value="18"/>
             <Setter Property="Opacity" Value="0.75"/>
         </Style>
 
+        <!-- BOUTON JOUER -->
         <Style Selector="Button.play-button">
             <Setter Property="FontSize" Value="18"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Padding" Value="35,15"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="MinWidth" Value="180"/>
+        </Style>
+
+        <!-- BARRE DE PROGRESSION -->
+        <Style Selector="ProgressBar.modpack-progress">
+            <Setter Property="Height" Value="10"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
         </Style>
 
     </Window.Styles>
 
+
     <Grid RowDefinitions="Auto,*,Auto"
           Margin="40">
 
+
+        <!-- ========================= -->
         <!-- HEADER -->
+        <!-- ========================= -->
+
         <StackPanel Grid.Row="0"
                     Spacing="5">
 
@@ -46,37 +62,79 @@
         </StackPanel>
 
 
+        <!-- ========================= -->
         <!-- CONTENU PRINCIPAL -->
-        <StackPanel Grid.Row="1"
+        <!-- ========================= -->
+
+        <Grid Grid.Row="1"
+              HorizontalAlignment="Center"
+              VerticalAlignment="Center"
+              Width="420">
+
+            <StackPanel Spacing="12"
+                        HorizontalAlignment="Stretch">
+
+                <!-- VERSION -->
+                <TextBlock Text="Minecraft 1.20.1"
+                           FontSize="28"
+                           FontWeight="SemiBold"
+                           HorizontalAlignment="Center"/>
+
+                <TextBlock Text="Forge 47.4.0"
+                           FontSize="18"
+                           Opacity="0.7"
+                           HorizontalAlignment="Center"/>
+
+
+                <!-- BOUTON -->
+                <Button Content="JOUER"
+                        Classes="play-button"
+                        Margin="0,25,0,5"
+                        Command="{Binding PrepareMinecraftCommand}"
+                        IsEnabled="{Binding !IsBusy}"/>
+
+
+                <!-- PROGRESSION -->
+                <ProgressBar Value="{Binding Progress}"
+                             Minimum="0"
+                             Maximum="100"
+                             Classes="modpack-progress"
+                             IsVisible="{Binding IsBusy}"/>
+
+
+                <!-- POURCENTAGE -->
+                <TextBlock
+                    Text="{Binding Progress, StringFormat='{}{0:0}%'}"
+                    FontSize="14"
                     HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    Spacing="15">
-
-            <TextBlock Text="Minecraft 1.20.1"
-                       FontSize="26"
-                       HorizontalAlignment="Center"/>
-
-            <TextBlock Text="Forge 47.4.0"
-                       FontSize="18"
-                       Opacity="0.7"
-                       HorizontalAlignment="Center"/>
-
-        <Button Content="JOUER"
-                Classes="play-button"
-                Margin="0,25,0,0"
-                Command="{Binding PrepareMinecraftCommand}"
-                IsEnabled="{Binding !IsBusy}"/>
-
-        </StackPanel>
+                    Opacity="0.8"
+                    IsVisible="{Binding IsBusy}"/>
 
 
+                <!-- STATUT -->
+                <TextBlock Text="{Binding Status}"
+                           FontSize="14"
+                           HorizontalAlignment="Center"
+                           TextAlignment="Center"
+                           TextWrapping="Wrap"
+                           Margin="0,5,0,0"/>
+
+            </StackPanel>
+
+        </Grid>
+
+
+        <!-- ========================= -->
         <!-- FOOTER -->
+        <!-- ========================= -->
+
         <Grid Grid.Row="2"
               ColumnDefinitions="*,Auto">
 
             <TextBlock Grid.Column="0"
-                       Text="{Binding Status}"
-                       VerticalAlignment="Center"/>
+                       Text="Minecraft 1.20.1 • Forge 47.4.0"
+                       VerticalAlignment="Center"
+                       Opacity="0.5"/>
 
             <TextBlock Grid.Column="1"
                        Text="Zarodeur Launcher"

@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,7 +18,7 @@ public class MinecraftService
     private const string ForgeVersion = "47.4.0";
 
     private const string JavaPath =
-        @"C:\Program Files\Eclipse Adoptium\jdk-17.0.20.101-hotspot\bin\java.exe";
+        @"C:\Program Files\Eclipse Adoptium\jdk-17.0.20.101-hotspot\bin\javaw.exe";
 
     public MinecraftService(MinecraftPathService pathService)
     {
@@ -80,6 +81,12 @@ public class MinecraftService
                     Session = session,
                     JavaPath = JavaPath
                 });
+
+        // Masquer la fenêtre console de Java
+        process.StartInfo.UseShellExecute = false;
+        process.StartInfo.CreateNoWindow = true;
+        process.StartInfo.WindowStyle =
+            ProcessWindowStyle.Hidden;
 
         // Lancement
         process.Start();

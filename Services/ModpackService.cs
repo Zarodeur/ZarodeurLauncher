@@ -48,7 +48,7 @@ public class ModpackService
 
     public async Task SynchronizeModsAsync(
         ModpackManifest manifest,
-        Action<long, long>? progressCallback = null)
+        Action<string, int, int, long, long>? progressCallback = null)
     {
         var expectedFiles =
             new HashSet<string>(
@@ -73,17 +73,23 @@ public class ModpackService
         }
 
         // Téléchargement / vérification des mods
-        foreach (var mod in manifest.Mods)
+        for (int i = 0; i < manifest.Mods.Count; i++)
         {
+            var mod = manifest.Mods[i];
+
             await DownloadModAsync(
                 mod,
+                i + 1,
+                manifest.Mods.Count,
                 progressCallback);
         }
     }
 
     private async Task<bool> DownloadModAsync(
         ModInfo mod,
-        Action<long, long>? progressCallback = null)
+        int currentMod,
+        int totalMods,
+        Action<string, int, int, long, long>? progressCallback = null)
     {
         var destination =
             Path.Combine(
@@ -101,7 +107,12 @@ public class ModpackService
                 mod.Sha256,
                 StringComparison.OrdinalIgnoreCase))
             {
-                progressCallback?.Invoke(1, 1);
+                progressCallback?.Invoke(
+                    mod.File,
+                    currentMod,
+                    totalMods,
+                    1,
+                    1);
 
                 return false;
             }
@@ -128,10 +139,6 @@ public class ModpackService
             var totalBytes =
                 response.Content.Headers.ContentLength ?? -1;
 
-            // IMPORTANT :
-            // le stream de sortie est enfermé dans son propre bloc.
-            // Il sera donc fermé AVANT la vérification SHA
-            // et avant File.Move().
             await using (var input =
                 await response.Content.ReadAsStreamAsync())
             await using (var output =
@@ -155,14 +162,15 @@ public class ModpackService
                     totalRead += bytesRead;
 
                     progressCallback?.Invoke(
+                        mod.File,
+                        currentMod,
+                        totalMods,
                         totalRead,
                         totalBytes);
                 }
 
                 await output.FlushAsync();
             }
-
-            // À partir d'ici, le fichier .download est fermé.
 
             // Vérification SHA-256
             var downloadedHash =
@@ -178,13 +186,13 @@ public class ModpackService
                     $"Le SHA-256 de {mod.File} ne correspond pas au manifest.");
             }
 
-            // Suppression de l'ancien fichier si nécessaire
+            // Suppression de l'ancien fichier
             if (File.Exists(destination))
             {
                 File.Delete(destination);
             }
 
-            // Le fichier temporaire est maintenant valide
+            // Déplacement du fichier validé
             File.Move(
                 temporaryFile,
                 destination);
@@ -193,7 +201,6 @@ public class ModpackService
         }
         catch
         {
-            // Nettoyage du fichier temporaire en cas d'erreur
             if (File.Exists(temporaryFile))
             {
                 File.Delete(temporaryFile);

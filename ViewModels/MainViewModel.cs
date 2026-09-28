@@ -58,8 +58,21 @@ public partial class MainViewModel : ViewModelBase
 
             await _modpackService.SynchronizeModsAsync(
                 manifest,
-                (currentBytes, totalBytes) =>
+                (fileName, currentMod, totalMods, currentBytes, totalBytes) =>
                 {
+                    // Mod déjà présent et valide
+                    if (currentBytes == 1 && totalBytes == 1)
+                    {
+                        Progress = 100;
+
+                        Status =
+                            $"✓ {fileName} déjà à jour\n" +
+                            $"Mod {currentMod}/{totalMods}";
+
+                        return;
+                    }
+
+                    // Téléchargement avec taille connue
                     if (totalBytes > 0)
                     {
                         Progress =
@@ -67,15 +80,22 @@ public partial class MainViewModel : ViewModelBase
                             totalBytes *
                             100;
 
+                        var currentMb =
+                            currentBytes / 1024.0 / 1024.0;
+
+                        var totalMb =
+                            totalBytes / 1024.0 / 1024.0;
+
                         Status =
-                            $"Téléchargement... " +
-                            $"{currentBytes / 1024 / 1024} / " +
-                            $"{totalBytes / 1024 / 1024} Mo";
+                            $"Téléchargement de {fileName}\n" +
+                            $"Mod {currentMod}/{totalMods}\n" +
+                            $"{currentMb:0.0} / {totalMb:0.0} Mo";
                     }
                     else
                     {
                         Status =
-                            $"Téléchargement... " +
+                            $"Téléchargement de {fileName}\n" +
+                            $"Mod {currentMod}/{totalMods}\n" +
                             $"{currentBytes / 1024 / 1024} Mo";
                     }
                 });

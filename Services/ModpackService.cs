@@ -14,9 +14,8 @@ public class ModpackService
     private readonly HttpClient _httpClient;
     private readonly MinecraftPathService _pathService;
 
-    private const string ManifestUrl =
-        "https://raw.githubusercontent.com/Zarodeur/ZarodeurModpack/main/manifest.json";
-
+   private const string ManifestUrl =
+    "https://raw.githubusercontent.com/Zarodeur/ZarodeurModpack/main/manifest.json";
     public ModpackService(
         MinecraftPathService pathService)
     {
@@ -30,8 +29,11 @@ public class ModpackService
 
     public async Task<ModpackManifest> GetManifestAsync()
     {
+        var url =
+            $"{ManifestUrl}?t={DateTimeOffset.UtcNow.ToUnixTimeSeconds()}";
+
         var json =
-            await _httpClient.GetStringAsync(ManifestUrl);
+            await _httpClient.GetStringAsync(url);
 
         var manifest =
             JsonSerializer.Deserialize<ModpackManifest>(
@@ -223,5 +225,22 @@ public class ModpackService
             await sha256.ComputeHashAsync(stream);
 
         return Convert.ToHexString(hash);
+    }
+    public string GetInstalledVersion()
+    {
+        if (!File.Exists(_pathService.ModpackVersionFile))
+        {
+            return string.Empty;
+        }
+
+        return File.ReadAllText(
+            _pathService.ModpackVersionFile).Trim();
+    }
+
+    public void SaveInstalledVersion(string version)
+    {
+        File.WriteAllText(
+            _pathService.ModpackVersionFile,
+            version);
     }
 }

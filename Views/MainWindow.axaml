@@ -11,19 +11,16 @@
 
     <Window.Styles>
 
-        <!-- TITRE -->
         <Style Selector="TextBlock.title">
             <Setter Property="FontSize" Value="32"/>
             <Setter Property="FontWeight" Value="Bold"/>
         </Style>
 
-        <!-- SOUS-TITRE -->
         <Style Selector="TextBlock.subtitle">
             <Setter Property="FontSize" Value="18"/>
             <Setter Property="Opacity" Value="0.75"/>
         </Style>
 
-        <!-- BOUTON JOUER -->
         <Style Selector="Button.play-button">
             <Setter Property="FontSize" Value="18"/>
             <Setter Property="FontWeight" Value="Bold"/>
@@ -33,7 +30,6 @@
             <Setter Property="MinWidth" Value="180"/>
         </Style>
 
-        <!-- BARRE DE PROGRESSION -->
         <Style Selector="ProgressBar.modpack-progress">
             <Setter Property="Height" Value="10"/>
             <Setter Property="HorizontalAlignment" Value="Stretch"/>
@@ -41,31 +37,41 @@
 
     </Window.Styles>
 
-
     <Grid RowDefinitions="Auto,*,Auto"
           Margin="40">
 
+        <!-- EN-TÊTE -->
+        <Grid Grid.Row="0"
+              ColumnDefinitions="*,Auto">
 
-        <!-- ========================= -->
-        <!-- HEADER -->
-        <!-- ========================= -->
+            <StackPanel Grid.Column="0"
+                        Spacing="5">
 
-        <StackPanel Grid.Row="0"
-                    Spacing="5">
+                <TextBlock Text="Minecraft Launcher"
+                           Classes="subtitle"/>
 
-            <TextBlock Text="ZARODEUR"
-                       Classes="title"/>
+            </StackPanel>
 
-            <TextBlock Text="Minecraft Launcher"
-                       Classes="subtitle"/>
+            <!-- RAM -->
+            <StackPanel Grid.Column="1"
+                        Orientation="Horizontal"
+                        VerticalAlignment="Top"
+                        Spacing="8">
 
-        </StackPanel>
+                <TextBlock Text="RAM :"
+                           VerticalAlignment="Center"
+                           FontSize="14"
+                           Opacity="0.7"/>
 
+                <ComboBox Width="90"
+                          ItemsSource="{Binding RamOptions}"
+                          SelectedItem="{Binding SelectedRam}"/>
 
-        <!-- ========================= -->
+            </StackPanel>
+
+        </Grid>
+
         <!-- CONTENU PRINCIPAL -->
-        <!-- ========================= -->
-
         <Grid Grid.Row="1"
               HorizontalAlignment="Center"
               VerticalAlignment="Center"
@@ -74,44 +80,45 @@
             <StackPanel Spacing="12"
                         HorizontalAlignment="Stretch">
 
-                <!-- VERSION -->
                 <TextBlock Text="Minecraft 1.20.1"
                            FontSize="28"
                            FontWeight="SemiBold"
                            HorizontalAlignment="Center"/>
 
-                <TextBlock Text="Forge 47.4.0"
-                           FontSize="18"
-                           Opacity="0.7"
-                           HorizontalAlignment="Center"/>
+                <TextBlock Text="MODPACK"
+                           FontSize="17"
+                           FontWeight="SemiBold"
+                           HorizontalAlignment="Center"
+                           Margin="0,20,0,0"/>
 
+                <TextBlock Text="{Binding ModpackVersion}"
+                           FontSize="14"
+                           HorizontalAlignment="Center"
+                           Opacity="0.75"/>
 
-                <!-- BOUTON -->
-                <Button Content="JOUER"
+                <TextBlock Text="{Binding ModpackStatus}"
+                           FontSize="14"
+                           HorizontalAlignment="Center"
+                           Opacity="0.8"/>
+
+                <Button Content="{Binding PlayButtonText}"
                         Classes="play-button"
                         Margin="0,25,0,5"
                         Command="{Binding PrepareMinecraftCommand}"
                         IsEnabled="{Binding !IsBusy}"/>
 
-
-                <!-- PROGRESSION -->
                 <ProgressBar Value="{Binding Progress}"
                              Minimum="0"
                              Maximum="100"
                              Classes="modpack-progress"
                              IsVisible="{Binding IsBusy}"/>
 
+                <TextBlock Text="{Binding Progress, StringFormat='{}{0:0}%'}"
+                           FontSize="14"
+                           HorizontalAlignment="Center"
+                           Opacity="0.8"
+                           IsVisible="{Binding IsBusy}"/>
 
-                <!-- POURCENTAGE -->
-                <TextBlock
-                    Text="{Binding Progress, StringFormat='{}{0:0}%'}"
-                    FontSize="14"
-                    HorizontalAlignment="Center"
-                    Opacity="0.8"
-                    IsVisible="{Binding IsBusy}"/>
-
-
-                <!-- STATUT -->
                 <TextBlock Text="{Binding Status}"
                            FontSize="14"
                            HorizontalAlignment="Center"
@@ -123,11 +130,7 @@
 
         </Grid>
 
-
-        <!-- ========================= -->
-        <!-- FOOTER -->
-        <!-- ========================= -->
-
+        <!-- PIED DE PAGE -->
         <Grid Grid.Row="2"
               ColumnDefinitions="*,Auto">
 

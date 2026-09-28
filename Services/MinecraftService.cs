@@ -25,7 +25,7 @@ public class MinecraftService
         _pathService = pathService;
     }
 
-    public async Task LaunchAsync()
+    public async Task LaunchAsync(int ramGb)
     {
         var path = new MinecraftPath(
             _pathService.MinecraftPath);
@@ -79,7 +79,9 @@ public class MinecraftService
                 new MLaunchOption
                 {
                     Session = session,
-                    JavaPath = JavaPath
+                    JavaPath = JavaPath,
+                    MinimumRamMb = 2048,
+                    MaximumRamMb = ramGb * 1024
                 });
 
         // Masquer la fenêtre console de Java

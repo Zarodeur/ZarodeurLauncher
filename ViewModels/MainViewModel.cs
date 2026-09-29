@@ -291,7 +291,7 @@ public partial class MainViewModel : ViewModelBase
     // PRÉPARATION ET LANCEMENT DE MINECRAFT
     // ============================================================
 
-    [RelayCommand]
+        [RelayCommand]
     private async Task PrepareMinecraft()
     {
         if (IsBusy)
@@ -342,10 +342,10 @@ public partial class MainViewModel : ViewModelBase
             await _modpackService.SynchronizeModsAsync(
                 manifest,
                 (fileName,
-                 currentMod,
-                 totalMods,
-                 currentBytes,
-                 totalBytes) =>
+                currentMod,
+                totalMods,
+                currentBytes,
+                totalBytes) =>
                 {
                     if (currentBytes == 1 &&
                         totalBytes == 1)
@@ -408,6 +408,29 @@ public partial class MainViewModel : ViewModelBase
             Status =
                 $"Modpack prêt ! Version {manifest.Version}";
 
+            // ========================================================
+            // CONNEXION MICROSOFT
+            // ========================================================
+
+            Status =
+                "Connexion à Microsoft...";
+
+            _logger.Info(
+                "Connexion Microsoft avant lancement de Minecraft");
+
+            _microsoftSession =
+                await _microsoftAuthService.LoginAsync();
+
+            _logger.Info(
+                $"Compte Microsoft connecté : {_microsoftSession.Username}");
+
+            _logger.Info(
+                $"UUID Minecraft : {_microsoftSession.UUID}");
+
+            // ========================================================
+            // LANCEMENT DE MINECRAFT
+            // ========================================================
+
             Status =
                 "Lancement de Minecraft...";
 
@@ -417,21 +440,15 @@ public partial class MainViewModel : ViewModelBase
                         " Go",
                         ""));
 
-            if (_microsoftSession == null)
-            {
-                Status =
-                    "Connexion Microsoft requise.";
-
-                return;
-            }
-
             await _minecraftService.LaunchAsync(
                 ramGb,
                 _microsoftSession);
-                
         }
         catch (Exception ex)
         {
+            _logger.Error(
+                $"Erreur pendant la préparation de Minecraft : {ex.Message}");
+
             Status =
                 $"Erreur : {ex.Message}";
         }

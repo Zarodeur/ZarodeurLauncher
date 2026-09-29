@@ -167,13 +167,6 @@
                                    HorizontalAlignment="Center"
                                    Opacity="0.8"/>
 
-                        <!-- CONNEXION MICROSOFT -->
-                        <Button Content="SE CONNECTER À MICROSOFT"
-                                HorizontalAlignment="Center"
-                                Margin="0,10,0,0"
-                                Command="{Binding TestMicrosoftLoginCommand}"
-                                IsEnabled="{Binding !IsBusy}"/>
-
                         <!-- JOUER -->
                         <Button Content="{Binding PlayButtonText}"
                                 Classes="play-button"

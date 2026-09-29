@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.Input;
 using ZarodeurLauncher.Services;
 using Avalonia.Controls;
 using ZarodeurLauncher.Views;
+using CmlLib.Core.Auth;
 
 namespace ZarodeurLauncher.ViewModels;
 
@@ -16,6 +17,8 @@ public partial class MainViewModel : ViewModelBase
     private readonly ModpackService _modpackService;
     private readonly LauncherSettingsService _settingsService;
     private readonly LoggerService _logger;
+    private readonly MicrosoftAuthService _microsoftAuthService;
+    private MSession? _microsoftSession;
 
     [ObservableProperty]
     private string _logs = "Aucun log disponible.";
@@ -58,29 +61,39 @@ public partial class MainViewModel : ViewModelBase
 
     public MainViewModel()
     {
-        _minecraftPathService = new MinecraftPathService();
+        _minecraftPathService =
+            new MinecraftPathService();
 
-        _settingsService = new LauncherSettingsService();
+        _settingsService =
+            new LauncherSettingsService();
 
         _selectedRam =
             $"{_settingsService.GetRam()} Go";
 
-        _logger = new LoggerService();
+        _logger =
+            new LoggerService();
 
-        _logger.Info("Launcher démarré");
+        _logger.Info(
+            "Launcher démarré");
 
-        _minecraftService = new MinecraftService(
-            _minecraftPathService);
+        _microsoftAuthService =
+            new MicrosoftAuthService();
 
-        _modpackService = new ModpackService(
-            _minecraftPathService);
+        _minecraftService =
+            new MinecraftService(
+                _minecraftPathService);
+
+        _modpackService =
+            new ModpackService(
+                _minecraftPathService);
     }
 
     // ============================================================
     // RAM
     // ============================================================
 
-    partial void OnSelectedRamChanged(string value)
+    partial void OnSelectedRamChanged(
+        string value)
     {
         if (string.IsNullOrWhiteSpace(value))
             return;
@@ -116,13 +129,15 @@ public partial class MainViewModel : ViewModelBase
     [RelayCommand]
     private void OpenLogs()
     {
-        Logs = _logger.GetTodayLogs();
+        Logs =
+            _logger.GetTodayLogs();
     }
 
     [RelayCommand]
     private void RefreshLogs()
     {
-        Logs = _logger.GetTodayLogs();
+        Logs =
+            _logger.GetTodayLogs();
     }
 
     [RelayCommand]
@@ -131,7 +146,8 @@ public partial class MainViewModel : ViewModelBase
         if (App.Current?.ApplicationLifetime
             is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop)
         {
-            if (desktop.MainWindow is MainWindow mainWindow)
+            if (desktop.MainWindow
+                is MainWindow mainWindow)
             {
                 mainWindow.ShowClearLogsConfirmation();
             }
@@ -142,7 +158,57 @@ public partial class MainViewModel : ViewModelBase
     {
         _logger.ClearTodayLogs();
 
-        Logs = "Logs supprimés.";
+        Logs =
+            "Logs supprimés.";
+    }
+
+    // ============================================================
+    // AUTHENTIFICATION MICROSOFT
+    // ============================================================
+
+    [RelayCommand]
+    private async Task TestMicrosoftLoginAsync()
+    {
+        if (IsBusy)
+            return;
+
+        IsBusy = true;
+
+        try
+        {
+            Status =
+                "Connexion à Microsoft...";
+
+            _logger.Info(
+                "Début de l'authentification Microsoft");
+
+            _microsoftSession =
+                await _microsoftAuthService.LoginAsync();
+
+            var session =
+                _microsoftSession;
+
+            _logger.Info(
+                $"Compte Microsoft connecté : {session.Username}");
+
+            _logger.Info(
+                $"UUID Minecraft : {session.UUID}");
+
+            Status =
+                $"Connecté : {session.Username}";
+        }
+        catch (Exception ex)
+        {
+            _logger.Error(
+                $"Erreur d'authentification Microsoft : {ex.Message}");
+
+            Status =
+                $"Erreur de connexion Microsoft : {ex.Message}";
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 
     // ============================================================
@@ -153,9 +219,11 @@ public partial class MainViewModel : ViewModelBase
     {
         try
         {
-            _logger.Info("Vérification du modpack");
+            _logger.Info(
+                "Vérification du modpack");
 
-            ModpackStatus = "Vérification...";
+            ModpackStatus =
+                "Vérification...";
 
             var manifest =
                 await _modpackService.GetManifestAsync();
@@ -169,7 +237,8 @@ public partial class MainViewModel : ViewModelBase
             ModpackVersion =
                 $"Version disponible : {manifest.Version}";
 
-            if (string.IsNullOrEmpty(installedVersion))
+            if (string.IsNullOrEmpty(
+                installedVersion))
             {
                 _logger.Info(
                     "Aucune version du modpack installée");
@@ -180,13 +249,16 @@ public partial class MainViewModel : ViewModelBase
                 PlayButtonText =
                     "INSTALLER";
             }
-            else if (installedVersion != manifest.Version)
+            else if (
+                installedVersion != manifest.Version)
             {
                 _logger.Info(
-                    $"Mise à jour disponible : {installedVersion} → {manifest.Version}");
+                    $"Mise à jour disponible : " +
+                    $"{installedVersion} → {manifest.Version}");
 
                 ModpackStatus =
-                    $"⚠ Mise à jour disponible • {installedVersion} → {manifest.Version}";
+                    $"⚠ Mise à jour disponible • " +
+                    $"{installedVersion} → {manifest.Version}";
 
                 PlayButtonText =
                     "METTRE À JOUR";
@@ -206,10 +278,12 @@ public partial class MainViewModel : ViewModelBase
         catch (Exception ex)
         {
             _logger.Error(
-                $"Erreur lors de la vérification du modpack : {ex.Message}");
+                $"Erreur lors de la vérification du modpack : " +
+                $"{ex.Message}");
 
             ModpackStatus =
-                $"Impossible de vérifier le modpack : {ex.Message}";
+                $"Impossible de vérifier le modpack : " +
+                $"{ex.Message}";
         }
     }
 
@@ -227,7 +301,8 @@ public partial class MainViewModel : ViewModelBase
 
         try
         {
-            Status = "Récupération du modpack...";
+            Status =
+                "Récupération du modpack...";
 
             var manifest =
                 await _modpackService.GetManifestAsync();
@@ -238,13 +313,15 @@ public partial class MainViewModel : ViewModelBase
             ModpackVersion =
                 $"Version disponible : {manifest.Version}";
 
-            if (string.IsNullOrEmpty(installedVersion))
+            if (string.IsNullOrEmpty(
+                installedVersion))
             {
                 Status =
                     $"Première installation du modpack\n" +
                     $"Version disponible : {manifest.Version}";
             }
-            else if (installedVersion != manifest.Version)
+            else if (
+                installedVersion != manifest.Version)
             {
                 Status =
                     $"Mise à jour du modpack\n" +
@@ -257,15 +334,21 @@ public partial class MainViewModel : ViewModelBase
                     $"Version : {manifest.Version}";
             }
 
-            Status = "Synchronisation des mods...";
+            Status =
+                "Synchronisation des mods...";
 
             Progress = 0;
 
             await _modpackService.SynchronizeModsAsync(
                 manifest,
-                (fileName, currentMod, totalMods, currentBytes, totalBytes) =>
+                (fileName,
+                 currentMod,
+                 totalMods,
+                 currentBytes,
+                 totalBytes) =>
                 {
-                    if (currentBytes == 1 && totalBytes == 1)
+                    if (currentBytes == 1 &&
+                        totalBytes == 1)
                     {
                         Progress = 100;
 
@@ -284,15 +367,20 @@ public partial class MainViewModel : ViewModelBase
                             100;
 
                         var currentMb =
-                            currentBytes / 1024.0 / 1024.0;
+                            currentBytes /
+                            1024.0 /
+                            1024.0;
 
                         var totalMb =
-                            totalBytes / 1024.0 / 1024.0;
+                            totalBytes /
+                            1024.0 /
+                            1024.0;
 
                         Status =
                             $"Téléchargement de {fileName}\n" +
                             $"Mod {currentMod}/{totalMods}\n" +
-                            $"{currentMb:0.0} / {totalMb:0.0} Mo";
+                            $"{currentMb:0.0} / " +
+                            $"{totalMb:0.0} Mo";
                     }
                     else
                     {
@@ -308,7 +396,8 @@ public partial class MainViewModel : ViewModelBase
             _modpackService.SaveInstalledVersion(
                 manifest.Version);
 
-            PlayButtonText = "JOUER";
+            PlayButtonText =
+                "JOUER";
 
             ModpackVersion =
                 $"Version installée : {manifest.Version}";
@@ -324,10 +413,22 @@ public partial class MainViewModel : ViewModelBase
 
             var ramGb =
                 int.Parse(
-                    SelectedRam.Replace(" Go", ""));
+                    SelectedRam.Replace(
+                        " Go",
+                        ""));
+
+            if (_microsoftSession == null)
+            {
+                Status =
+                    "Connexion Microsoft requise.";
+
+                return;
+            }
 
             await _minecraftService.LaunchAsync(
-                ramGb);
+                ramGb,
+                _microsoftSession);
+                
         }
         catch (Exception ex)
         {

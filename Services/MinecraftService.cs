@@ -41,7 +41,9 @@ public class MinecraftService
     // LANCEMENT DE MINECRAFT
     // ============================================================
 
-    public async Task LaunchAsync(int ramGb)
+    public async Task LaunchAsync(
+        int ramGb,
+        MSession session)
     {
         try
         {
@@ -60,6 +62,12 @@ public class MinecraftService
 
             _logger.Info(
                 $"RAM sélectionnée : {ramGb} Go");
+
+            _logger.Info(
+                $"Compte Minecraft : {session.Username}");
+
+            _logger.Info(
+                $"UUID Minecraft : {session.UUID}");
 
             // ----------------------------------------------------
             // CHEMIN MINECRAFT
@@ -147,16 +155,11 @@ public class MinecraftService
                 "Bibliothèques Forge prêtes");
 
             // ----------------------------------------------------
-            // SESSION MINECRAFT
+            // SESSION MICROSOFT
             // ----------------------------------------------------
 
-            // Pour le moment nous utilisons une session hors ligne
-            var session =
-                MSession.CreateOfflineSession(
-                    "Zarodeur");
-
             _logger.Info(
-                "Session Minecraft hors ligne créée");
+                "Session Microsoft prête");
 
             // ----------------------------------------------------
             // CONSTRUCTION DU PROCESSUS
@@ -190,6 +193,7 @@ public class MinecraftService
             //
             // Ces paramètres permettent également de masquer
             // la console du processus.
+
             process.StartInfo.UseShellExecute = false;
 
             process.StartInfo.CreateNoWindow = true;

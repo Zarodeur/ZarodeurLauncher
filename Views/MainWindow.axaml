@@ -82,8 +82,14 @@
                     <StackPanel Grid.Column="0"
                                 Spacing="5">
 
+                        <StackPanel Spacing="2">
                         <TextBlock Text="Minecraft Launcher"
-                                   Classes="subtitle"/>
+                                Classes="subtitle"/>
+
+                        <TextBlock Text="{Binding MinecraftUsername, StringFormat='👤 {0}'}"
+                                FontSize="13"
+                                Opacity="0.65"/>
+                </StackPanel>
 
                     </StackPanel>
 

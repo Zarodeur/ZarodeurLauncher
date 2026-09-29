@@ -21,6 +21,9 @@ public partial class MainViewModel : ViewModelBase
     private MSession? _microsoftSession;
 
     [ObservableProperty]
+    private string minecraftUsername = "Non connecté";
+
+    [ObservableProperty]
     private string _logs = "Aucun log disponible.";
 
     [ObservableProperty]
@@ -420,7 +423,9 @@ public partial class MainViewModel : ViewModelBase
 
             _microsoftSession =
                 await _microsoftAuthService.LoginAsync();
-
+                
+            MinecraftUsername =
+            _microsoftSession.Username ?? "Compte Microsoft";
             _logger.Info(
                 $"Compte Microsoft connecté : {_microsoftSession.Username}");
 

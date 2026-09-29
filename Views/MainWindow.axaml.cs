@@ -22,4 +22,24 @@ public partial class MainWindow : Window
             await viewModel.CheckModpackAsync();
         }
     }
+
+    // ============================================================
+    // CONFIRMATION DE SUPPRESSION DES LOGS
+    // ============================================================
+
+    public async void ShowClearLogsConfirmation()
+    {
+        if (DataContext is not MainViewModel viewModel)
+            return;
+
+        var dialog =
+            new ConfirmDialog();
+
+        await dialog.ShowDialog(this);
+
+        if (dialog.Confirmed)
+        {
+            viewModel.ConfirmClearLogs();
+        }
+    }
 }

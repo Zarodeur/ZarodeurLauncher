@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ZarodeurLauncher.Services;
+using Avalonia.Controls;
+using ZarodeurLauncher.Views;
 
 namespace ZarodeurLauncher.ViewModels;
 
@@ -13,6 +15,13 @@ public partial class MainViewModel : ViewModelBase
     private readonly MinecraftService _minecraftService;
     private readonly ModpackService _modpackService;
     private readonly LauncherSettingsService _settingsService;
+    private readonly LoggerService _logger;
+
+    [ObservableProperty]
+    private string _logs = "Aucun log disponible.";
+
+    [ObservableProperty]
+    private bool _showSettings;
 
     [ObservableProperty]
     private string _status = "Prêt";
@@ -56,12 +65,20 @@ public partial class MainViewModel : ViewModelBase
         _selectedRam =
             $"{_settingsService.GetRam()} Go";
 
+        _logger = new LoggerService();
+
+        _logger.Info("Launcher démarré");
+
         _minecraftService = new MinecraftService(
             _minecraftPathService);
 
         _modpackService = new ModpackService(
             _minecraftPathService);
     }
+
+    // ============================================================
+    // RAM
+    // ============================================================
 
     partial void OnSelectedRamChanged(string value)
     {
@@ -76,14 +93,75 @@ public partial class MainViewModel : ViewModelBase
         }
     }
 
+    // ============================================================
+    // NAVIGATION
+    // ============================================================
+
+    [RelayCommand]
+    private void OpenSettings()
+    {
+        ShowSettings = true;
+    }
+
+    [RelayCommand]
+    private void CloseSettings()
+    {
+        ShowSettings = false;
+    }
+
+    // ============================================================
+    // LOGS
+    // ============================================================
+
+    [RelayCommand]
+    private void OpenLogs()
+    {
+        Logs = _logger.GetTodayLogs();
+    }
+
+    [RelayCommand]
+    private void RefreshLogs()
+    {
+        Logs = _logger.GetTodayLogs();
+    }
+
+    [RelayCommand]
+    private void ClearLogs()
+    {
+        if (App.Current?.ApplicationLifetime
+            is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop)
+        {
+            if (desktop.MainWindow is MainWindow mainWindow)
+            {
+                mainWindow.ShowClearLogsConfirmation();
+            }
+        }
+    }
+
+    public void ConfirmClearLogs()
+    {
+        _logger.ClearTodayLogs();
+
+        Logs = "Logs supprimés.";
+    }
+
+    // ============================================================
+    // VÉRIFICATION DU MODPACK
+    // ============================================================
+
     public async Task CheckModpackAsync()
     {
         try
         {
+            _logger.Info("Vérification du modpack");
+
             ModpackStatus = "Vérification...";
 
             var manifest =
                 await _modpackService.GetManifestAsync();
+
+            _logger.Info(
+                $"Manifest v{manifest.Version} récupéré");
 
             var installedVersion =
                 _modpackService.GetInstalledVersion();
@@ -93,6 +171,9 @@ public partial class MainViewModel : ViewModelBase
 
             if (string.IsNullOrEmpty(installedVersion))
             {
+                _logger.Info(
+                    "Aucune version du modpack installée");
+
                 ModpackStatus =
                     "Installation requise";
 
@@ -101,6 +182,9 @@ public partial class MainViewModel : ViewModelBase
             }
             else if (installedVersion != manifest.Version)
             {
+                _logger.Info(
+                    $"Mise à jour disponible : {installedVersion} → {manifest.Version}");
+
                 ModpackStatus =
                     $"⚠ Mise à jour disponible • {installedVersion} → {manifest.Version}";
 
@@ -109,6 +193,9 @@ public partial class MainViewModel : ViewModelBase
             }
             else
             {
+                _logger.Info(
+                    $"Modpack à jour : v{manifest.Version}");
+
                 ModpackStatus =
                     "✓ Modpack à jour";
 
@@ -118,10 +205,17 @@ public partial class MainViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
+            _logger.Error(
+                $"Erreur lors de la vérification du modpack : {ex.Message}");
+
             ModpackStatus =
                 $"Impossible de vérifier le modpack : {ex.Message}";
         }
     }
+
+    // ============================================================
+    // PRÉPARATION ET LANCEMENT DE MINECRAFT
+    // ============================================================
 
     [RelayCommand]
     private async Task PrepareMinecraft()

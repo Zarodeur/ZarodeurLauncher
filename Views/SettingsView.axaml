@@ -1,0 +1,237 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ZarodeurLauncher.ViewModels"
+             x:Class="ZarodeurLauncher.Views.SettingsView"
+             x:DataType="vm:MainViewModel">
+
+    <Grid Margin="40"
+          RowDefinitions="Auto,*,Auto">
+
+        <!-- EN-TÊTE -->
+        <Grid Grid.Row="0"
+              ColumnDefinitions="Auto,*">
+
+            <Button Content="←"
+                    Width="42"
+                    Height="42"
+                    FontSize="20"
+                    Command="{Binding CloseSettingsCommand}"/>
+
+            <TextBlock Grid.Column="1"
+                       Text="Paramètres"
+                       FontSize="28"
+                       FontWeight="SemiBold"
+                       VerticalAlignment="Center"
+                       Margin="15,0,0,0"/>
+
+        </Grid>
+
+        <!-- CONTENU -->
+        <ScrollViewer Grid.Row="1"
+                      Margin="0,30,0,20">
+
+            <StackPanel Spacing="25">
+
+                <!-- MINECRAFT -->
+                <StackPanel Spacing="10">
+
+                    <TextBlock Text="Minecraft"
+                               FontSize="20"
+                               FontWeight="SemiBold"/>
+
+                    <Border BorderThickness="1"
+                            BorderBrush="#444444"
+                            CornerRadius="6"
+                            Padding="15">
+
+                        <StackPanel Spacing="15">
+
+                            <Grid ColumnDefinitions="*,Auto">
+
+                                <TextBlock Text="RAM"
+                                           VerticalAlignment="Center"/>
+
+                                <ComboBox Grid.Column="1"
+                                          Width="100"
+                                          ItemsSource="{Binding RamOptions}"
+                                          SelectedItem="{Binding SelectedRam}"/>
+
+                            </Grid>
+
+                            <Grid ColumnDefinitions="*,Auto">
+
+                                <TextBlock Text="Version Java"
+                                           VerticalAlignment="Center"/>
+
+                                <TextBlock Grid.Column="1"
+                                           Text="Java 17"
+                                           Opacity="0.7"/>
+
+                            </Grid>
+
+                            <Grid ColumnDefinitions="*,Auto">
+
+                                <TextBlock Text="Version Minecraft"
+                                           VerticalAlignment="Center"/>
+
+                                <TextBlock Grid.Column="1"
+                                           Text="1.20.1"
+                                           Opacity="0.7"/>
+
+                            </Grid>
+
+                            <Grid ColumnDefinitions="*,Auto">
+
+                                <TextBlock Text="Forge"
+                                           VerticalAlignment="Center"/>
+
+                                <TextBlock Grid.Column="1"
+                                           Text="47.4.0"
+                                           Opacity="0.7"/>
+
+                            </Grid>
+
+                        </StackPanel>
+
+                    </Border>
+
+                </StackPanel>
+
+
+                <!-- MODPACK -->
+                <StackPanel Spacing="10">
+
+                    <TextBlock Text="Modpack"
+                               FontSize="20"
+                               FontWeight="SemiBold"/>
+
+                    <Border BorderThickness="1"
+                            BorderBrush="#444444"
+                            CornerRadius="6"
+                            Padding="15">
+
+                        <StackPanel Spacing="12">
+
+                            <Grid ColumnDefinitions="*,Auto">
+
+                                <TextBlock Text="Nom"
+                                           VerticalAlignment="Center"/>
+
+                                <TextBlock Grid.Column="1"
+                                           Text="Zarodeur Modpack"
+                                           Opacity="0.7"/>
+
+                            </Grid>
+
+                            <Grid ColumnDefinitions="*,Auto">
+
+                                <TextBlock Text="Version"
+                                           VerticalAlignment="Center"/>
+
+                                <TextBlock Grid.Column="1"
+                                           Text="{Binding ModpackVersion}"
+                                           Opacity="0.7"/>
+
+                            </Grid>
+
+                            <Grid ColumnDefinitions="*,Auto">
+
+                                <TextBlock Text="Statut"
+                                           VerticalAlignment="Center"/>
+
+                                <TextBlock Grid.Column="1"
+                                           Text="{Binding ModpackStatus}"
+                                           Opacity="0.7"/>
+
+                            </Grid>
+
+                        </StackPanel>
+
+                    </Border>
+
+                </StackPanel>
+
+
+                <!-- LOGS -->
+                <StackPanel Spacing="10">
+
+                    <TextBlock Text="Logs"
+                            FontSize="20"
+                            FontWeight="SemiBold"/>
+
+                    <Border BorderThickness="1"
+                            BorderBrush="#444444"
+                            CornerRadius="6"
+                            Padding="15">
+
+                        <StackPanel Spacing="15">
+
+                            <!-- EN-TÊTE DES LOGS -->
+                            <Grid ColumnDefinitions="*,Auto,Auto">
+
+                                <StackPanel Spacing="4">
+
+                                    <TextBlock Text="Logs du jour"
+                                            FontWeight="SemiBold"/>
+
+                                    <TextBlock Text="Journal du launcher"
+                                            Opacity="0.7"/>
+
+                                </StackPanel>
+
+                                <!-- ACTUALISER -->
+                                <Button Grid.Column="1"
+                                        Content="↻"
+                                        Width="40"
+                                        Height="36"
+                                        Margin="10,0,5,0"
+                                        ToolTip.Tip="Actualiser les logs"
+                                        Command="{Binding RefreshLogsCommand}"/>
+
+                                <!-- EFFACER -->
+                                <Button Grid.Column="2"
+                                        Content="🗑"
+                                        Width="40"
+                                        Height="36"
+                                        ToolTip.Tip="Effacer les logs"
+                                        Command="{Binding ClearLogsCommand}"/>
+
+                            </Grid>
+
+                            <!-- CONTENU DES LOGS -->
+                            <Border BorderThickness="1"
+                                    BorderBrush="#333333"
+                                    CornerRadius="4"
+                                    Padding="10">
+
+                                <ScrollViewer Height="250"
+                                            VerticalScrollBarVisibility="Auto"
+                                            HorizontalScrollBarVisibility="Auto">
+
+                                    <TextBlock Text="{Binding Logs}"
+                                            FontFamily="Consolas"
+                                            FontSize="12"
+                                            TextWrapping="NoWrap"/>
+
+                                </ScrollViewer>
+
+                            </Border>
+
+                        </StackPanel>
+
+                    </Border>
+
+                </StackPanel>
+            </StackPanel>
+
+        </ScrollViewer>
+
+        <!-- PIED DE PAGE -->
+        <TextBlock Grid.Row="2"
+                   Text="Zarodeur Launcher"
+                   HorizontalAlignment="Right"
+                   Opacity="0.5"/>
+
+    </Grid>
+
+</UserControl>

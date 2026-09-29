@@ -1,6 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:ZarodeurLauncher.ViewModels"
+        xmlns:views="using:ZarodeurLauncher.Views"
         x:Class="ZarodeurLauncher.Views.MainWindow"
         x:DataType="vm:MainViewModel"
         Width="900"
@@ -11,23 +12,26 @@
 
     <Window.Styles>
 
+        <!-- TITRE -->
         <Style Selector="TextBlock.title">
             <Setter Property="FontSize" Value="32"/>
             <Setter Property="FontWeight" Value="Bold"/>
         </Style>
 
+        <!-- SOUS-TITRE -->
         <Style Selector="TextBlock.subtitle">
             <Setter Property="FontSize" Value="18"/>
             <Setter Property="Opacity" Value="0.75"/>
         </Style>
 
-        <!-- Style du sélecteur RAM -->
+        <!-- RAM -->
         <Style Selector="ComboBox.ram-selector">
             <Setter Property="MinWidth" Value="95"/>
             <Setter Property="Height" Value="34"/>
             <Setter Property="FontSize" Value="14"/>
         </Style>
 
+        <!-- BOUTON JOUER -->
         <Style Selector="Button.play-button">
             <Setter Property="FontSize" Value="18"/>
             <Setter Property="FontWeight" Value="Bold"/>
@@ -37,6 +41,7 @@
             <Setter Property="MinWidth" Value="180"/>
         </Style>
 
+        <!-- PROGRESSION -->
         <Style Selector="ProgressBar.modpack-progress">
             <Setter Property="Height" Value="10"/>
             <Setter Property="HorizontalAlignment" Value="Stretch"/>
@@ -44,126 +49,163 @@
 
     </Window.Styles>
 
-    <Grid RowDefinitions="Auto,*,Auto"
-          Margin="40">
+    <Grid>
+        <!-- ====================================================== -->
+        <!-- ÉCRAN PRINCIPAL -->
+        <!-- ====================================================== -->
 
-        <!-- EN-TÊTE -->
-        <Grid Grid.Row="0"
-              ColumnDefinitions="*,Auto">
+        <Grid IsVisible="{Binding !ShowSettings}">
 
-            <StackPanel Grid.Column="0"
-                        Spacing="5">
+            <Grid RowDefinitions="Auto,*,Auto"
+                Margin="40">
 
-                <TextBlock Text="Minecraft Launcher"
-                           Classes="subtitle"/>
+                <!-- EN-TÊTE -->
+                <Grid Grid.Row="0"
+                    ColumnDefinitions="*,Auto">
 
-            </StackPanel>
+                    <StackPanel Grid.Column="0"
+                                Spacing="5">
 
-            <!-- RAM -->
-            <Border Grid.Column="1"
-                    BorderThickness="1"
-                    BorderBrush="#444444"
-                    CornerRadius="6"
-                    Padding="12,6"
-                    VerticalAlignment="Top">
+                        <TextBlock Text="Minecraft Launcher"
+                                Classes="subtitle"/>
 
-                <StackPanel Orientation="Horizontal"
-                            Spacing="8">
+                    </StackPanel>
 
-                    <TextBlock Text="RAM"
-                            VerticalAlignment="Center"
-                            FontSize="13"
-                            FontWeight="SemiBold"
-                            Opacity="0.65"/>
 
-                    <ComboBox Width="70"
-                            Background="Transparent"
-                            BorderThickness="0"
+                    <!-- RAM + PARAMÈTRES -->
+                    <StackPanel Grid.Column="1"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Top"
+                                Spacing="8">
+
+                        <!-- RAM -->
+                        <Border BorderThickness="1"
+                                BorderBrush="#444444"
+                                CornerRadius="6"
+                                Padding="12,6"
+                                VerticalAlignment="Top">
+
+                            <StackPanel Orientation="Horizontal"
+                                        Spacing="8">
+
+                                <TextBlock Text="RAM"
+                                        VerticalAlignment="Center"
+                                        FontSize="13"
+                                        FontWeight="SemiBold"
+                                        Opacity="0.65"/>
+
+                                <ComboBox Width="70"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        Padding="0"
+                                        FontSize="14"
+                                        ItemsSource="{Binding RamOptions}"
+                                        SelectedItem="{Binding SelectedRam}"/>
+
+                            </StackPanel>
+
+                        </Border>
+
+
+                        <!-- PARAMÈTRES -->
+                        <Button Content="⚙"
+                            Width="42"
+                            Height="42"
+                            FontSize="20"
                             Padding="0"
-                            FontSize="14"
-                            ItemsSource="{Binding RamOptions}"
-                            SelectedItem="{Binding SelectedRam}"/>
+                            HorizontalContentAlignment="Center"
+                            VerticalContentAlignment="Center"
+                            VerticalAlignment="Top"
+                            Command="{Binding OpenSettingsCommand}"/>
 
-                </StackPanel>
+                    </StackPanel>
 
-            </Border>
+                </Grid>
+
+
+                <!-- CONTENU PRINCIPAL -->
+                <Grid Grid.Row="1"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Width="420">
+
+                    <StackPanel Spacing="12"
+                                HorizontalAlignment="Stretch">
+
+                        <TextBlock Text="Minecraft 1.20.1"
+                                FontSize="28"
+                                FontWeight="SemiBold"
+                                HorizontalAlignment="Center"/>
+
+                        <TextBlock Text="MODPACK"
+                                FontSize="17"
+                                FontWeight="SemiBold"
+                                HorizontalAlignment="Center"
+                                Margin="0,20,0,0"/>
+
+                        <TextBlock Text="{Binding ModpackVersion}"
+                                FontSize="14"
+                                HorizontalAlignment="Center"
+                                Opacity="0.75"/>
+
+                        <TextBlock Text="{Binding ModpackStatus}"
+                                FontSize="14"
+                                HorizontalAlignment="Center"
+                                Opacity="0.8"/>
+
+                        <Button Content="{Binding PlayButtonText}"
+                                Classes="play-button"
+                                Margin="0,25,0,5"
+                                Command="{Binding PrepareMinecraftCommand}"
+                                IsEnabled="{Binding !IsBusy}"/>
+
+                        <ProgressBar Value="{Binding Progress}"
+                                    Minimum="0"
+                                    Maximum="100"
+                                    Classes="modpack-progress"
+                                    IsVisible="{Binding IsBusy}"/>
+
+                        <TextBlock Text="{Binding Progress, StringFormat='{}{0:0}%'}"
+                                FontSize="14"
+                                HorizontalAlignment="Center"
+                                Opacity="0.8"
+                                IsVisible="{Binding IsBusy}"/>
+
+                        <TextBlock Text="{Binding Status}"
+                                FontSize="14"
+                                HorizontalAlignment="Center"
+                                TextAlignment="Center"
+                                TextWrapping="Wrap"
+                                Margin="0,5,0,0"/>
+
+                    </StackPanel>
+
+                </Grid>
+
+
+                <!-- PIED DE PAGE -->
+                <Grid Grid.Row="2"
+                    ColumnDefinitions="*,Auto">
+
+                    <TextBlock Grid.Column="0"
+                            Text="Minecraft 1.20.1 • Forge 47.4.0"
+                            VerticalAlignment="Center"
+                            Opacity="0.5"/>
+
+                    <TextBlock Grid.Column="1"
+                            Text="Zarodeur Launcher"
+                            Opacity="0.5"/>
+
+                </Grid>
+
+            </Grid>
 
         </Grid>
+    
+        <!-- ====================================================== -->
+        <!-- ÉCRAN PARAMÈTRES -->
+        <!-- ====================================================== -->
 
-        <!-- CONTENU PRINCIPAL -->
-        <Grid Grid.Row="1"
-              HorizontalAlignment="Center"
-              VerticalAlignment="Center"
-              Width="420">
-
-            <StackPanel Spacing="12"
-                        HorizontalAlignment="Stretch">
-
-                <TextBlock Text="Minecraft 1.20.1"
-                           FontSize="28"
-                           FontWeight="SemiBold"
-                           HorizontalAlignment="Center"/>
-
-                <TextBlock Text="MODPACK"
-                           FontSize="17"
-                           FontWeight="SemiBold"
-                           HorizontalAlignment="Center"
-                           Margin="0,20,0,0"/>
-
-                <TextBlock Text="{Binding ModpackVersion}"
-                           FontSize="14"
-                           HorizontalAlignment="Center"
-                           Opacity="0.75"/>
-
-                <TextBlock Text="{Binding ModpackStatus}"
-                           FontSize="14"
-                           HorizontalAlignment="Center"
-                           Opacity="0.8"/>
-
-                <Button Content="{Binding PlayButtonText}"
-                        Classes="play-button"
-                        Margin="0,25,0,5"
-                        Command="{Binding PrepareMinecraftCommand}"
-                        IsEnabled="{Binding !IsBusy}"/>
-
-                <ProgressBar Value="{Binding Progress}"
-                             Minimum="0"
-                             Maximum="100"
-                             Classes="modpack-progress"
-                             IsVisible="{Binding IsBusy}"/>
-
-                <TextBlock Text="{Binding Progress, StringFormat='{}{0:0}%'}"
-                           FontSize="14"
-                           HorizontalAlignment="Center"
-                           Opacity="0.8"
-                           IsVisible="{Binding IsBusy}"/>
-
-                <TextBlock Text="{Binding Status}"
-                           FontSize="14"
-                           HorizontalAlignment="Center"
-                           TextAlignment="Center"
-                           TextWrapping="Wrap"
-                           Margin="0,5,0,0"/>
-
-            </StackPanel>
-
-        </Grid>
-
-        <!-- PIED DE PAGE -->
-        <Grid Grid.Row="2"
-              ColumnDefinitions="*,Auto">
-
-            <TextBlock Grid.Column="0"
-                       Text="Minecraft 1.20.1 • Forge 47.4.0"
-                       VerticalAlignment="Center"
-                       Opacity="0.5"/>
-
-            <TextBlock Grid.Column="1"
-                       Text="Zarodeur Launcher"
-                       Opacity="0.5"/>
-
-        </Grid>
-
+        <views:SettingsView IsVisible="{Binding ShowSettings}"/>
     </Grid>
-
 </Window>

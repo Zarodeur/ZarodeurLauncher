@@ -19,6 +19,8 @@ public partial class MainWindow : Window
     {
         if (DataContext is MainViewModel viewModel)
         {
+            await viewModel.AuthenticateMicrosoftAsync();
+
             await viewModel.CheckModpackAsync();
         }
     }

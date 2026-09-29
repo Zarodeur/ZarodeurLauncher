@@ -169,8 +169,7 @@ public partial class MainViewModel : ViewModelBase
     // AUTHENTIFICATION MICROSOFT
     // ============================================================
 
-    [RelayCommand]
-    private async Task TestMicrosoftLoginAsync()
+    public async Task AuthenticateMicrosoftAsync()
     {
         if (IsBusy)
             return;
@@ -188,25 +187,28 @@ public partial class MainViewModel : ViewModelBase
             _microsoftSession =
                 await _microsoftAuthService.LoginAsync();
 
-            var session =
-                _microsoftSession;
+            MinecraftUsername =
+                _microsoftSession.Username ?? "Compte Microsoft";
 
             _logger.Info(
-                $"Compte Microsoft connecté : {session.Username}");
+                $"Compte Microsoft connecté : {_microsoftSession.Username}");
 
             _logger.Info(
-                $"UUID Minecraft : {session.UUID}");
+                $"UUID Minecraft : {_microsoftSession.UUID}");
 
             Status =
-                $"Connecté : {session.Username}";
+                $"Connecté : {MinecraftUsername}";
         }
         catch (Exception ex)
         {
             _logger.Error(
                 $"Erreur d'authentification Microsoft : {ex.Message}");
 
+            MinecraftUsername =
+                "Non connecté";
+
             Status =
-                $"Erreur de connexion Microsoft : {ex.Message}";
+                "Connexion Microsoft impossible.";
         }
         finally
         {
@@ -294,7 +296,7 @@ public partial class MainViewModel : ViewModelBase
     // PRÉPARATION ET LANCEMENT DE MINECRAFT
     // ============================================================
 
-        [RelayCommand]
+    [RelayCommand]
     private async Task PrepareMinecraft()
     {
         if (IsBusy)
@@ -412,25 +414,34 @@ public partial class MainViewModel : ViewModelBase
                 $"Modpack prêt ! Version {manifest.Version}";
 
             // ========================================================
-            // CONNEXION MICROSOFT
+            // SESSION MICROSOFT
             // ========================================================
 
-            Status =
-                "Connexion à Microsoft...";
+            if (_microsoftSession == null)
+            {
+                Status =
+                    "Connexion à Microsoft...";
 
-            _logger.Info(
-                "Connexion Microsoft avant lancement de Minecraft");
+                _logger.Info(
+                    "Aucune session Microsoft disponible, nouvelle connexion");
 
-            _microsoftSession =
-                await _microsoftAuthService.LoginAsync();
-                
-            MinecraftUsername =
-            _microsoftSession.Username ?? "Compte Microsoft";
-            _logger.Info(
-                $"Compte Microsoft connecté : {_microsoftSession.Username}");
+                _microsoftSession =
+                    await _microsoftAuthService.LoginAsync();
 
-            _logger.Info(
-                $"UUID Minecraft : {_microsoftSession.UUID}");
+                MinecraftUsername =
+                    _microsoftSession.Username ?? "Compte Microsoft";
+
+                _logger.Info(
+                    $"Compte Microsoft connecté : {_microsoftSession.Username}");
+
+                _logger.Info(
+                    $"UUID Minecraft : {_microsoftSession.UUID}");
+            }
+            else
+            {
+                _logger.Info(
+                    $"Session Microsoft déjà disponible : {_microsoftSession.Username}");
+            }
 
             // ========================================================
             // LANCEMENT DE MINECRAFT

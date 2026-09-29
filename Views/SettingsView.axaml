@@ -98,6 +98,46 @@
                 </StackPanel>
 
 
+                <!-- COMPTE MICROSOFT -->
+                <StackPanel Spacing="10">
+
+                    <TextBlock Text="Compte Microsoft"
+                               FontSize="20"
+                               FontWeight="SemiBold"/>
+
+                    <Border BorderThickness="1"
+                            BorderBrush="#444444"
+                            CornerRadius="6"
+                            Padding="15">
+
+                        <Grid ColumnDefinitions="*,Auto">
+
+                            <StackPanel Grid.Column="0"
+                                        Spacing="4">
+
+                                <TextBlock Text="{Binding MinecraftUsername, StringFormat='👤 {0}'}"
+                                           FontSize="16"
+                                           FontWeight="SemiBold"/>
+
+                                <TextBlock Text="Compte Minecraft connecté"
+                                           FontSize="13"
+                                           Opacity="0.65"/>
+
+                            </StackPanel>
+
+                            <TextBlock Grid.Column="1"
+                                       Text="● Connecté"
+                                       VerticalAlignment="Center"
+                                       FontSize="13"
+                                       Opacity="0.8"/>
+
+                        </Grid>
+
+                    </Border>
+
+                </StackPanel>
+
+
                 <!-- MODPACK -->
                 <StackPanel Spacing="10">
 
@@ -156,8 +196,8 @@
                 <StackPanel Spacing="10">
 
                     <TextBlock Text="Logs"
-                            FontSize="20"
-                            FontWeight="SemiBold"/>
+                               FontSize="20"
+                               FontWeight="SemiBold"/>
 
                     <Border BorderThickness="1"
                             BorderBrush="#444444"
@@ -172,10 +212,10 @@
                                 <StackPanel Spacing="4">
 
                                     <TextBlock Text="Logs du jour"
-                                            FontWeight="SemiBold"/>
+                                               FontWeight="SemiBold"/>
 
                                     <TextBlock Text="Journal du launcher"
-                                            Opacity="0.7"/>
+                                               Opacity="0.7"/>
 
                                 </StackPanel>
 
@@ -205,13 +245,13 @@
                                     Padding="10">
 
                                 <ScrollViewer Height="250"
-                                            VerticalScrollBarVisibility="Auto"
-                                            HorizontalScrollBarVisibility="Auto">
+                                              VerticalScrollBarVisibility="Auto"
+                                              HorizontalScrollBarVisibility="Auto">
 
                                     <TextBlock Text="{Binding Logs}"
-                                            FontFamily="Consolas"
-                                            FontSize="12"
-                                            TextWrapping="NoWrap"/>
+                                               FontFamily="Consolas"
+                                               FontSize="12"
+                                               TextWrapping="NoWrap"/>
 
                                 </ScrollViewer>
 
@@ -222,6 +262,7 @@
                     </Border>
 
                 </StackPanel>
+
             </StackPanel>
 
         </ScrollViewer>
